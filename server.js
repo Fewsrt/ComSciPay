@@ -1,3 +1,4 @@
+"use strict";
 require("dotenv").config();
 const line = require("@line/bot-sdk");
 const express = require("express");
@@ -28,6 +29,8 @@ const {
   saveSensorData,
 } = require("./src/middleware/firebase");
 
+const main = require("./config");
+
 const config = {
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.CHANNEL_SECRET,
@@ -37,22 +40,22 @@ const client = new line.Client(config);
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, env: process.env.SENTRY_ENV });
 
-figlet(
-  `${process.env.APP_NAME}`,
-  {
-    font: "isometric3",
-    horizontalLayout: "default",
-    verticalLayout: "default",
-  },
-  function (err, data) {
-    if (err) {
-      console.log("Something went wrong...");
-      console.dir(err);
-      return;
-    }
-    console.log(data);
-  }
-);
+// figlet(
+//   `${process.env.APP_NAME}`,
+//   {
+//     font: "isometric3",
+//     horizontalLayout: "default",
+//     verticalLayout: "default",
+//   },
+//   function (err, data) {
+//     if (err) {
+//       console.log("Something went wrong...");
+//       console.dir(err);
+//       return;
+//     }
+//     console.log(data);
+//   }
+// );
 
 app.use(Sentry.Handlers.requestHandler());
 
@@ -85,7 +88,37 @@ async function handleEvent(event, req) {
     let message = null;
     const messageId = get(event, "message.id", 0);
     const image = await client.getMessageContent(messageId);
-    // uploadImageToImageProcessingServer
+    ("use strict");
+    const nodemailer = require("nodemailer");
+    // async..await is not allowed in global scope, must use a wrapper
+    async function main() {
+      // สร้างออปเจ็ค transporter เพื่อกำหนดการเชื่อมต่อ SMTP และใช้ตอนส่งเมล
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          // ข้อมูลการเข้าสู่ระบบ
+          user: "chonnaphat.v@gmail.com", // email user ของเรา
+          pass: "few12521", // email password
+        },
+      });
+      // เริ่มทำการส่งอีเมล
+      let info = await transporter.sendMail({
+        from: '"ComSciPay👻" <chonnaphat.v@gmail.com>', // อีเมลผู้ส่ง
+        to: "62050140@kmitl.ac.th", // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+        subject: "อีเมลแจ้งการส่งสินค้า คำสั่งซื้อ 01700299", // หัวข้ออีเมล
+        text: "เรียน ลูกค้า", // plain text body
+        html: "<b>หมายเลข GiftCard : 999-999-999 ทางร้าน ComSciPay ขอขอบพระคุณที่ท่านได้ให้การสนับสนุน</b>", // html body
+      });
+      // log ข้อมูลการส่งว่าส่งได้-ไม่ได้
+      console.log("Message sent: %s", info.messageId);
+    }
+    main().catch(console.error);
+
+    module.exports = {
+      main,
+    };
     message = {
       type: "flex",
       altText: "สั่งซื้อแพ็คเกจ",
@@ -185,32 +218,6 @@ async function handleEvent(event, req) {
       },
     };
 
-    // async..await is not allowed in global scope, must use a wrapper
-    async function Gmailsend() {
-      // สร้างออปเจ็ค transporter เพื่อกำหนดการเชื่อมต่อ SMTP และใช้ตอนส่งเมล
-      let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          // ข้อมูลการเข้าสู่ระบบ
-          user: "chonnaphat.v@gmail.com", // email user ของเรา
-          pass: "few12521", // email password
-        },
-      });
-      // เริ่มทำการส่งอีเมล
-      let info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <outcastwarm@gmail.com>', // อีเมลผู้ส่ง
-        to: "outcastwarm@gmail.com", // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-        subject: "Hello ✔", // หัวข้ออีเมล
-        text: "Hello world?", // plain text body
-        html: "<b>Hello world?</b>", // html body
-      });
-      // log ข้อมูลการส่งว่าส่งได้-ไม่ได้
-      console.log("Message sent: %s", info.messageId);
-    }
-    Gmailsend().catch(console.error);
-
     const currentUser = await getUserData({ userId: req.profile.userId });
     const userCurrentContext = get(currentUser, "context", "");
     let dialogflowResp = null;
@@ -251,7 +258,6 @@ async function handleEvent(event, req) {
         break;
       case "Confirm":
         message = payment();
-        sendMail();
         break;
       case "Orderlist":
         message = orderlist();

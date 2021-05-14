@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports = () => [
   {
     type: "flex",
-    altText: "สั่งซื้อแพ็คเกจ",
+    altText: "ยินดีตอนรับ",
     contents: {
       type: "bubble",
       hero: {
@@ -19,7 +19,7 @@ module.exports = () => [
         contents: [
           {
             type: "text",
-            text: "ขอบคุณที่ใช้บริการ",
+            text: "ยินดีตอนรับ",
             weight: "bold",
             size: "xl",
             contents: [],
@@ -38,6 +38,30 @@ module.exports = () => [
           },
         ],
       },
+    },
+  },
+  {
+    type: "text",
+    text: "สามารถทำรายการเร่งด่วน ได้โดยการใช้ตัวช่วยที่เราเตรียมไว้ให้ข้างล่างนี้ได้เลย",
+    quickReply: {
+      items: [
+        {
+          type: "action",
+          action: {
+            type: "message",
+            label: "สั่งซื้อแพ็คเกจ",
+            text: "สั่งซื้อแพ็คเกจ",
+          },
+        },
+        {
+          type: "action",
+          action: {
+            type: "message",
+            label: "ตรวจสอบสถานะ",
+            text: "ตรวจสอบสถานะ",
+          },
+        },
+      ],
     },
   },
 ];

@@ -6,6 +6,7 @@ const Sentry = require("@sentry/node");
 const figlet = require("figlet");
 const dialogflow = require("dialogflow");
 const axios = require("axios");
+const nodemailer = require("nodemailer");
 const { get } = require("lodash");
 const { getUserProfile, getImageContent } = require("./src/middleware/line");
 const {
@@ -167,8 +168,6 @@ async function handleEvent(event, req) {
         client_x509_cert_url:
           "https://www.googleapis.com/robot/v1/metadata/x509/dialogflow-tsduqv%40f15p-slxavh.iam.gserviceaccount.com",
       },
-      // keyFilename:
-      //   "/Users/Few/Desktop/Fasac/line_Bot/f15p/src/services/dialogflow-service-account.json",
     });
 
     const sessionPath = sessionClient.sessionPath(
@@ -185,6 +184,32 @@ async function handleEvent(event, req) {
         },
       },
     };
+
+    // async..await is not allowed in global scope, must use a wrapper
+    async function Gmailsend() {
+      // สร้างออปเจ็ค transporter เพื่อกำหนดการเชื่อมต่อ SMTP และใช้ตอนส่งเมล
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          // ข้อมูลการเข้าสู่ระบบ
+          user: "outcastwarm@gmail.com", // email user ของเรา
+          pass: "Threethos05", // email password
+        },
+      });
+      // เริ่มทำการส่งอีเมล
+      let info = await transporter.sendMail({
+        from: '"Fred Foo 👻" <outcastwarm@gmail.com>', // อีเมลผู้ส่ง
+        to: "outcastwarm@gmail.com", // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+        subject: "Hello ✔", // หัวข้ออีเมล
+        text: "Hello world?", // plain text body
+        html: "<b>Hello world?</b>", // html body
+      });
+      // log ข้อมูลการส่งว่าส่งได้-ไม่ได้
+      console.log("Message sent: %s", info.messageId);
+    }
+    Gmailsend().catch(console.error);
 
     const currentUser = await getUserData({ userId: req.profile.userId });
     const userCurrentContext = get(currentUser, "context", "");
@@ -226,6 +251,7 @@ async function handleEvent(event, req) {
         break;
       case "Confirm":
         message = payment();
+        sendMail();
         break;
       case "Orderlist":
         message = orderlist();

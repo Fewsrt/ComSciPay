@@ -194,8 +194,8 @@ async function handleEvent(event, req) {
         secure: false, // true for 465, false for other ports
         auth: {
           // ข้อมูลการเข้าสู่ระบบ
-          user: "outcastwarm@gmail.com", // email user ของเรา
-          pass: "Threethos05", // email password
+          user: "chonnaphat.v@gmail.com", // email user ของเรา
+          pass: "few12521", // email password
         },
       });
       // เริ่มทำการส่งอีเมล

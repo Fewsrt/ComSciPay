@@ -5,6 +5,7 @@ const app = express();
 const Sentry = require("@sentry/node");
 const figlet = require("figlet");
 const dialogflow = require("dialogflow");
+const axios = require("axios");
 const { get } = require("lodash");
 const { getUserProfile, getImageContent } = require("./src/middleware/line");
 const {
@@ -55,10 +56,6 @@ figlet(
 app.use(Sentry.Handlers.requestHandler());
 
 app.get("/", (req, res) => res.send("Hello World!"));
-
-app.post("/test", (req, res) => {
-  console.log(req.body);
-});
 
 app.post(
   "/callback",
@@ -155,8 +152,23 @@ async function handleEvent(event, req) {
 
     const sessionClient = new dialogflow.SessionsClient({
       projectId: dialogflowProjectId,
-      keyFilename:
-        "/Users/Few/Desktop/Fasac/line_Bot/f15p/src/services/dialogflow-service-account.json",
+      credentials: {
+        type: "service_account",
+        project_id: "f15p-slxavh",
+        private_key_id: "781a2aee5d1a549285ac6fa38f47f421b8a926a4",
+        private_key:
+          "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCz0PojDsyajGqf\nWeaBnUgCnhr2c5xvQvv5xzm2sSQqwIIgasAsZoUR2tmV/2C4zC2J1OUpux1WxDGE\n1+8abZUnUyCUj3Os739BaKsCy9AgASx3Bf8ZEUAxZnSRb+CD68l1B16HhU2wmwja\n35JKtkQhRTNzYGUgbsff7iRhwlXuXJ1U7Dw1MYTTBPU0tTVyw9WzPMFS3bKDoyfc\nufpaXWPCbblU6++VYoRD58wu2+gl9gYnNkCMbiza8zqkjewcDWUOMQLtslZlOFS9\nzLerrtaRB/wUdaSpYFHOYa6ZOB7bsscCEJBBY9n6vSsFpRgzLfGNOjMbPln003mn\nIaSHiQrRAgMBAAECggEAM7fT8fhkNcFUO1/ukfIMT6BszdyjrkacVZONEHQznE5B\nPxSlEEAuXtvMwD0y8wPaxy1h+hY00otcWMKIpVfGUgixMrltwlwiBEyX/xZi1omv\n4c3qOKoDBhJbTadZcmgDSfMkJ6NaHIUCz30FRRLWVqFiMnmTrHfgahJDCZENCSDD\ntqQjGd8AUre4irmYWcYMtiTjx4L4ADMQYubQ9jbgeubBETstYV0bPEVfcAGmTkc7\nekEAFuxk30SkSFVaJVhN5cczPJG/1+cAzo7WLnQRMwXppFwG3cA+tLpQwhfobivs\nBa3fC5sHjQA8eMTclDi9FPNqj5vJ1dBPliB8FeQKTwKBgQDbUaHp0d/2ekltig2k\ne+ngdJsQ4dlq2PykIe0zpUeufXaZ9WD/qd3lxhqEaemhjyYn98JsK5iVFjcG9ZHI\n09kf0y2yFfx6BM+okj+/Z8uEn+0RAxUHXNlHTPbRGi1ZzDyf4FvcGF+4Ef5n9J45\nhKTJAcQoxzCVy+Zidn0HgC2wQwKBgQDR5ABJffvnNm6190O8dcUHivM7bvZri8eE\nEBnfQUzIxK/nIGnn8n4A8ZLpe6kkqEUqcb/rtj9Dvu3SAedKdhiPtYO9cQeKLIfR\nfZfWnRmTPUKzyde0mcF+0NqcrlDxnpN6nUNKVdjMoA3p+E+q3/sYIRX8mOtrhTcy\ntpnQO1ZhWwKBgHRapazX5JruG6CamkxGVTj4g//74g32mmo1eZNpv1LKSy646MIa\ni5fIdu8DBajpuhOANUyQAH4v7/eoNrS1974Tmm2djnnprYXAOUPBvE5bTjk1SmXC\nk59pLJSY77BxU0R6kiF9aOLN4Quj0oGvZoEhh8EelB8UsuBP/lsJXLPjAoGBAKNG\nwMprDRkSiRFZJwJmgz2Y5Bpp+Zw0AqNDezznqXnNOCGOX5SmWUsWofir0CrKE/Qu\nxOPyxEhJMOxburd8IyM4SyGF2h2tAoL/Nq0nTQvzbf46mGjP62xhwI5+NE2h1Ixf\n5kbffWXBZNGL7z24O7bLljUIKKtd2FDFJ+aLImldAoGBAJmp9HPOs+uYdcZYB/Wg\nSpnhwHEROULTNek/XFyDGL5I4tLOdZkEfLhKf+Pl3dM/Cf4KXTTde36wNQ5MjgbR\nDq1/gkQuptYf7vQddsLSGiehdVjig4thgIy8t8QS1ZRlH4bxic3ULkFCm9DQlDnJ\nX4u1Km1Zl4Vjc5ym9soe07Rh\n-----END PRIVATE KEY-----\n",
+        client_email: "dialogflow-tsduqv@f15p-slxavh.iam.gserviceaccount.com",
+        client_id: "103814843287639482109",
+        auth_uri: "https://accounts.google.com/o/oauth2/auth",
+        token_uri: "https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url:
+          "https://www.googleapis.com/oauth2/v1/certs",
+        client_x509_cert_url:
+          "https://www.googleapis.com/robot/v1/metadata/x509/dialogflow-tsduqv%40f15p-slxavh.iam.gserviceaccount.com",
+      },
+      // keyFilename:
+      //   "/Users/Few/Desktop/Fasac/line_Bot/f15p/src/services/dialogflow-service-account.json",
     });
 
     const sessionPath = sessionClient.sessionPath(

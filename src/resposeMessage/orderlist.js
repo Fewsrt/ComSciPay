@@ -65,7 +65,7 @@ module.exports = () => [
                       },
                       {
                         type: "text",
-                        text: "ชนภัทร วิเศษโชค",
+                        text: "ธนกฤต ศรีสุข",
                         size: "sm",
                         color: "#666666",
                         flex: 3,
@@ -89,7 +89,7 @@ module.exports = () => [
                       },
                       {
                         type: "text",
-                        text: "Chonnaphat.v@gmail.com",
+                        text: "62050167@kmitl.ac.th",
                         size: "sm",
                         color: "#666666",
                         flex: 6,
@@ -219,7 +219,7 @@ module.exports = () => [
                       },
                       {
                         type: "text",
-                        text: "ชนภัทร์ วิเศษโชค",
+                        text: "ธนกฤต ศรีสุข",
                         size: "sm",
                         color: "#666666",
                         flex: 3,
@@ -243,7 +243,7 @@ module.exports = () => [
                       },
                       {
                         type: "text",
-                        text: "Chonnaphat.v@gmail.com",
+                        text: "62050167@kmitl.ac.th",
                         size: "sm",
                         color: "#666666",
                         flex: 3,

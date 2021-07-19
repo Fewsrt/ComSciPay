@@ -82,7 +82,7 @@ app.post(
         return returnMessage;
       })
     )
-      .then((result) => {
+      .then((returnMessage) => {
         //ให้ส่งไปในรูปแบบนี้
         res.status(200).send(returnMessage);
       })

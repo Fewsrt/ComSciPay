@@ -40,34 +40,30 @@ const client = new line.Client(config);
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, env: process.env.SENTRY_ENV });
 
+// figlet(
+//   `${process.env.APP_NAME}`,
+//   {
+//     font: "isometric3",
+//     horizontalLayout: "default",
+//     verticalLayout: "default",
+//   },
+//   function (err, data) {
+//     if (err) {
+//       console.log("Something went wrong...");
+//       console.dir(err);
+//       return;
+//     }
+//     console.log(data);
+//   }
+// );
+
 app.use(Sentry.Handlers.requestHandler());
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
-app.post(
-  "/callback",
-  line.middleware(config),
-  getUserProfile(client),
-  (req, res) => {
-    if (!Array.isArray(req.body.events)) {
-      return res.status(500).end();
-    }
-    Promise.all(
-      req.body.events.map((event) => {
-        console.log("event", event);
-        if (
-          event.replyToken === "00000000000000000000000000000000" ||
-          event.replyToken === "ffffffffffffffffffffffffffffffff"
-        ) {
-          return;
-        }
-        const returnMessage = handleEvent(event);
-        return returnMessage;
-      })
-    )
-      .then((returnMessage) => {
-        res.status(200).send(returnMessage);
-      })
+app.post("/callback", line.middleware(config), getUserProfile(client), (req, res) => {
+    Promise.all(req.body.events.map((event) => handleEvent(event, req)))
+      .then((result) => res.json(result))
       .catch((err) => {
         console.error(err);
         res.status(500).end();

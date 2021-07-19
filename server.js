@@ -61,9 +61,31 @@ app.use(Sentry.Handlers.requestHandler());
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
-app.post("/callback", line.middleware(config), getUserProfile(client), (req, res) => {
-    Promise.all(req.body.events.map((event) => handleEvent(event, req)))
-      .then((result) => res.json(result))
+app.post(
+  "/callback",
+  line.middleware(config),
+  getUserProfile(client),
+  (req, res) => {
+    Promise.all(
+      req.body.events.map((event) => {
+        console.log("event", event);
+        // check verify webhook event
+        if (
+          event.replyToken === "00000000000000000000000000000000" ||
+          event.replyToken === "ffffffffffffffffffffffffffffffff"
+        ) {
+          return;
+        }
+
+        //ข้อความที่ต้องการให้แสดงใน Chat Tool
+        const returnMessage = handleEvent(event, req);
+        return returnMessage;
+      })
+    )
+      .then((result) => {
+        //ให้ส่งไปในรูปแบบนี้
+        res.status(200).send(returnMessage);
+      })
       .catch((err) => {
         console.error(err);
         res.status(500).end();

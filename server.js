@@ -66,6 +66,9 @@ app.post(
   line.middleware(config),
   getUserProfile(client),
   (req, res) => {
+    if (!Array.isArray(req.body.events)) {
+      return res.status(500).end();
+    }
     Promise.all(
       req.body.events.map((event) => {
         console.log("event", event);

@@ -45,7 +45,7 @@ app.use(Sentry.Handlers.requestHandler());
 app.get("/", (req, res) => res.send("Hello World!"));
 
 app.post(
-  "/webhook",
+  "/callback",
   line.middleware(config),
   getUserProfile(client),
   (req, res) => {

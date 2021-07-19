@@ -40,34 +40,34 @@ const client = new line.Client(config);
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, env: process.env.SENTRY_ENV });
 
-// figlet(
-//   `${process.env.APP_NAME}`,
-//   {
-//     font: "isometric3",
-//     horizontalLayout: "default",
-//     verticalLayout: "default",
-//   },
-//   function (err, data) {
-//     if (err) {
-//       console.log("Something went wrong...");
-//       console.dir(err);
-//       return;
-//     }
-//     console.log(data);
-//   }
-// );
-
 app.use(Sentry.Handlers.requestHandler());
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
 app.post(
-  "/callback",
+  "/webhook",
   line.middleware(config),
   getUserProfile(client),
   (req, res) => {
-    Promise.all(req.body.events.map((event) => handleEvent(event, req)))
-      .then((result) => res.json(result))
+    if (!Array.isArray(req.body.events)) {
+      return res.status(500).end();
+    }
+    Promise.all(
+      req.body.events.map((event) => {
+        console.log("event", event);
+        if (
+          event.replyToken === "00000000000000000000000000000000" ||
+          event.replyToken === "ffffffffffffffffffffffffffffffff"
+        ) {
+          return;
+        }
+        const returnMessage = handleEvent(event);
+        return returnMessage;
+      })
+    )
+      .then((returnMessage) => {
+        res.status(200).send(returnMessage);
+      })
       .catch((err) => {
         console.error(err);
         res.status(500).end();
@@ -82,103 +82,6 @@ async function handleEvent(event, req) {
       event.replyToken,
       greetings(req.profile.displayName)
     );
-  }
-
-  if (event.type === "message" && event.message.type === "image") {
-    let message = null;
-    const messageId = get(event, "message.id", 0);
-    const image = await client.getMessageContent(messageId);
-    ("use strict");
-    const nodemailer = require("nodemailer");
-    // async..await is not allowed in global scope, must use a wrapper
-    async function main() {
-      // สร้างออปเจ็ค transporter เพื่อกำหนดการเชื่อมต่อ SMTP และใช้ตอนส่งเมล
-      let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          // ข้อมูลการเข้าสู่ระบบ
-          user: "chonnaphat.v@gmail.com", // email user ของเรา
-          pass: "few12521", // email password
-        },
-      });
-      // เริ่มทำการส่งอีเมล
-      let info = await transporter.sendMail({
-        from: '"ComSciPay👻" <chonnaphat.v@gmail.com>', // อีเมลผู้ส่ง
-        to: "62050167@kmitl.ac.th,62050140@kmitl.ac.th", // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-        subject: "อีเมลแจ้งการส่งสินค้า คำสั่งซื้อ 01700299", // หัวข้ออีเมล
-        text: "เรียน ลูกค้า", // plain text body
-        html: "<b>หมายเลข GiftCard : 999-999-999 ทางร้าน ComSciPay ขอขอบพระคุณที่ท่านได้ให้การสนับสนุน</b>", // html body
-      });
-      // log ข้อมูลการส่งว่าส่งได้-ไม่ได้
-      console.log("Message sent: %s", info.messageId);
-    }
-    main().catch(console.error);
-
-    module.exports = {
-      main,
-    };
-    message = {
-      type: "flex",
-      altText: "สั่งซื้อแพ็คเกจ",
-      contents: {
-        type: "bubble",
-        hero: {
-          type: "image",
-          url: "https://firebasestorage.googleapis.com/v0/b/comscipay.appspot.com/o/steam.jpg?alt=media&token=841b28b9-47f6-43bb-9464-7558a471fd19",
-          size: "full",
-          aspectRatio: "20:13",
-          aspectMode: "cover",
-          action: {
-            type: "uri",
-            label: "Line",
-            uri: "https://linecorp.com/",
-          },
-        },
-        body: {
-          type: "box",
-          layout: "vertical",
-          contents: [
-            {
-              type: "text",
-              text: "ขอบคุณที่ใช้บริการ",
-              weight: "bold",
-              size: "xl",
-              contents: [],
-            },
-            {
-              type: "text",
-              text: "สามารถตรวจสอบสินค้าได้ที่ E-mail",
-              contents: [],
-            },
-          ],
-        },
-        footer: {
-          type: "box",
-          layout: "vertical",
-          flex: 0,
-          spacing: "sm",
-          contents: [
-            {
-              type: "spacer",
-              size: "sm",
-            },
-            {
-              type: "button",
-              action: {
-                type: "message",
-                label: "ตรวจสอบสถานะ",
-                text: "ตรวจสอบสถานะ",
-              },
-              color: "#000000FF",
-              style: "primary",
-            },
-          ],
-        },
-      },
-    };
-    return client.replyMessage(event.replyToken, message);
   }
 
   if (event.type === "message" && event.message.type === "text") {
